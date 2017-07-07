@@ -10,14 +10,13 @@
 
 function islandora_wait_for_object_menu() {
   return array(
-    'admin/islandora_wait_for_object' => array(
+    'admin/islandora/islandora_wait_for_object' => array(
       'title' => 'Wait for Object (preventing a bottleneck during ingest)',
       'description' => 'Define ingest "wait for" behavior.',
       'page callback' => 'drupal_get_form',
       'access arguments' => array('administer site configuration'),
       'page arguments' => array('islandora_wait_for_object_admin'),
       'file' => 'includes/admin.form.inc',
-      'type' => MENU_NORMAL_ITEM,
     )
   );
 }

@@ -1,6 +1,7 @@
 name = "Islandora Wait for Object"
 description = "To assist preventing a bottleneck during ingest"
+package = Islandora Tools
 dependencies[] = islandora
 version = 7.x-1.6
 core = 7.x
-configure = admin/islandora_wait_for_object
+configure = admin/islandora/islandora_wait_for_object
