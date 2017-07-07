@@ -1,0 +1,62 @@
+<?php
+
+/* 
+ * This module serves a single purpose, to try to access the object's datastream
+ * during the ingest process and if the object datastream is not an object yet,
+ * it will wait a second and test the object again.  It will repeat this up to a
+ * threshold of variable_get('islandora_wait_for_object_max_seconds', 30) seconds.
+ *
+ */
+
+function islandora_wait_for_object_menu() {
+  return array(
+    'admin/islandora_wait_for_object' => array(
+      'title' => 'Wait for Object (preventing a bottleneck during ingest)',
+      'description' => 'Define ingest "wait for" behavior.',
+      'page callback' => 'drupal_get_form',
+      'access arguments' => array('administer site configuration'),
+      'page arguments' => array('islandora_wait_for_object_admin'),
+      'file' => 'includes/admin.form.inc',
+      'type' => MENU_NORMAL_ITEM,
+    )
+  );
+}
+
+/**
+ * This will try to access the object's datastream specified by the $dsid value
+ * (usually OBJ, but could be other datastreams).
+ *
+ * 1. If that datastream is an object, return TRUE
+ * 2. Wait 1 second
+ * 3. If the datastream is an object now, return TRUE
+ * 4. if the total wait time is less than variable_get('islandora_wait_for_object_max_seconds', 30), return to step 2
+ *
+ * @param Fedora object $object
+ * @param string $dsid
+ * @return boolean
+ */
+function islandora_wait_for_object_test($object, $dsid) {
+  $wait_seconds = 0;
+  $wait_max_seconds = variable_get('islandora_wait_for_object_max_seconds', 30);
+  if (is_object($object[$dsid])) {
+    islandora_wait_for_object_log_result($object, $dsid, $wait_seconds, TRUE);
+    return TRUE;
+  }
+  else {
+    while ($wait_seconds < $wait_max_seconds) {
+      $wait_seconds++;
+      sleep(1);
+      if (is_object($object[$dsid])) {
+        islandora_wait_for_object_log_result($object, $dsid, $wait_seconds, TRUE);
+        return TRUE;
+      }
+    }
+    islandora_wait_for_object_log_result($object, $dsid, $wait_seconds, FALSE);
+    return FALSE;
+  }
+}
+
+function islandora_wait_for_object_log_result($object, $dsid, $wait_seconds, $success) {
+  $success_str = ($success) ? 'succeeded' : 'FAILED';
+  error_log($wait_seconds . 's, access ' . $object->id . '[' . $dsid . ']? ' . $success_str);
+}
