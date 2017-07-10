@@ -49,6 +49,9 @@ function islandora_wait_for_object_test($object, $dsid) {
         islandora_wait_for_object_log_result($object, $dsid, $wait_seconds, TRUE);
         return TRUE;
       }
+      else {
+        islandora_wait_for_object_log_result($object, $dsid, $wait_seconds, FALSE);
+      }
     }
     islandora_wait_for_object_log_result($object, $dsid, $wait_seconds, FALSE);
     return FALSE;
